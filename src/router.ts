@@ -20,9 +20,9 @@ router.get('/product', authenticate, getProductHandler)
 
 router.post('/product', authenticate, productValidator(), handleInputError, postCreateProductHandler)
 
-router.put('/product/:id', productValidator(), handleInputError, putUpdateProductHandler)
+router.put('/product/:id', authenticate, productValidator(), handleInputError, putUpdateProductHandler)
 
-router.delete('/product/:id', deleteProductHandler)
+router.delete('/product/:id', authenticate, deleteProductHandler)
 
 //Categoria
 

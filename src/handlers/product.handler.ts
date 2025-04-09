@@ -25,58 +25,58 @@ export const getProductHandler = async (req: Request, res: Response) => {
     }
 };
 
-export const postCreateProductHandler = async (req: Request, res: Response) => {
+export const postCreateProductHandler = async (req: Request, res: Response): Promise<void> => {
     try {
+        const { code } = req.body;
 
-        const { code } = req.body
-
-        const existProduct = await Product.findOne({ code: code })
+        const existProduct = await Product.findOne({ code });
 
         if (existProduct) {
-            res.send(`Ya existe el producto ${code}`)
-            return
+            res.status(400).json({ error: `Ya existe el producto ${code}` });
+            return;
         }
 
-        const product = Product.create(req.body)
+        const product = await Product.create(req.body);
 
-        if (product) {
-            res.status(201).send('Producto Creado Correctamente')
-        }
-
-        //console.log(req.body)
+        res.status(201).json({ message: 'Producto creado correctamente', product });
     } catch (e) {
-        const error = new Error('Error al crear referencia')
-        res.status(500).json({ error: error })
+        console.error('Error en postCreateProductHandler:', e);
+        res.status(500).json({ error: 'Error al crear el producto' });
     }
-}
+};
 
 export const putUpdateProductHandler = async (req: Request, res: Response) => {
-    const { id } = req.params
+    const { id } = req.params;
+    const updateData = req.body;
 
-    const updateData = req.body
+    const { code } = req.body;
+
+    const existProduct = await Product.findOne({ code, _id: { $ne: id } });
+
+    if (existProduct) {
+        res.status(400).json({ error: `Ya existe el producto ${code}` });
+        return;
+    }
 
     try {
         const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
-            //me trae los cambios nuevos
             new: true,
-            // Activa las validaciones del esquema ante mongo
-            runValidators: true
-        })
+            runValidators: true,
+        });
 
         if (!updatedProduct) {
-            res.status(404).json({ message: "Producto no encontrado." });
-            return
+            res.status(404).json({ error: "Producto no encontrado." });
+            return;
         }
 
-        res.status(200).send('Producto actualizado correctamente.')
-        return
-
-    } catch (e) {
-        const error = new Error('Error al actualizar el producto')
-        res.status(500).json({ error: error })
+        res.status(200).json({ message: 'Producto actualizado correctamente.' });
+    } catch (e: any) {
+        console.error('Error al actualizar producto:', e);
+        res.status(500).json({
+            error: e.message || 'Error al actualizar el producto'
+        });
     }
-    //console.log(id)
-}
+};
 
 export const deleteProductHandler = async (req: Request, res: Response) => {
     const { id } = req.params
