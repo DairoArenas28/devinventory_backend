@@ -2,49 +2,50 @@ import { Request, Response } from "express";
 import Category from "../models/Category.Model";
 
 export const getCategoryHandler = async (req: Request, res: Response) => {
-    const { page = 1 , limit = 10 } = req.query
+    const { page = 1, limit = 10 } = req.query
+  
     try {
-
-        const skip = (Number(page) - 1) * Number(limit)
-
-        const [categories, total] = await Promise.all([
-            Category.find()
-                .skip(skip)
-                .limit(Number(limit)),
-            Category.countDocuments()
-        ])
-        res.json({
-            data: categories,
-            total,
-            currentPage: Number(page),
-        });
+      const skip = (Number(page) - 1) * Number(limit)
+  
+      const [categories, total] = await Promise.all([
+        Category.find()
+          .skip(Number(limit) === 0 ? 0 : skip)
+          .limit(Number(limit) === 0 ? 0 : Number(limit)),
+        Category.countDocuments()
+      ])
+  
+      res.json({
+        data: categories,
+        total,
+        currentPage: Number(page)
+      })
     } catch (e) {
-        res.status(500).json({error: 'Error al obtener los productos'})
+      res.status(500).json({ error: 'Error al obtener las categorías' })
     }
-}
+  }
 
 export const postCreateCategoryHandler = async (req: Request, res: Response) => {
     try {
 
         const { code } = req.body
 
-        const existCategory = await Category.findOne({code: code})
+        const existCategory = await Category.findOne({ code: code })
 
-        if(existCategory) {
+        if (existCategory) {
             res.send(`Ya existe la categoria ${code}`)
             return
         }
 
         const category = Category.create(req.body)
 
-        if(category) {
+        if (category) {
             res.status(201).send('Categoria Creada Correctamente')
         }
 
         //console.log(req.body)
     } catch (e) {
         const error = new Error('Error al crear la categoria')
-        res.status(500).json({error: error})
+        res.status(500).json({ error: error })
     }
 }
 
@@ -61,19 +62,19 @@ export const putUpdateCategoryHandler = async (req: Request, res: Response) => {
             runValidators: true
         })
 
-        if(!updatedCategory){
+        if (!updatedCategory) {
             res.status(404).json({ message: "Categoria no encontrado." });
-            return 
+            return
         }
 
         res.status(200).send('Categoria actualizado correctamente.')
-        return 
+        return
 
     } catch (e) {
         const error = new Error('Error al actualizar el Categoria')
-        res.status(500).json({error: error})
+        res.status(500).json({ error: error })
     }
-     //console.log(id)
+    //console.log(id)
 }
 
 export const deleteCategoryHandler = async (req: Request, res: Response) => {
@@ -82,7 +83,7 @@ export const deleteCategoryHandler = async (req: Request, res: Response) => {
     try {
         const deletedCategory = await Category.findByIdAndDelete(id)
 
-        if(!deletedCategory){
+        if (!deletedCategory) {
             res.status(404).send('Categoria no encontrada.')
             return
         }
@@ -92,6 +93,6 @@ export const deleteCategoryHandler = async (req: Request, res: Response) => {
 
     } catch (e) {
         const error = new Error('Error al eliminar la categoria.')
-        res.status(500).json({error: error})
+        res.status(500).json({ error: error })
     }
 }
