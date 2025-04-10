@@ -8,6 +8,7 @@ export interface IUser extends Document {
     description: string,
     image: string
     links: string
+    role: string
 }
 
 const userSchema = new Schema({
@@ -42,6 +43,10 @@ const userSchema = new Schema({
     image: {
         type: String,
         default: ''
+    },
+    role: {
+        type: String,
+        default: 'Client'
     }
 })
 

@@ -5,12 +5,14 @@ import { deleteInventoryMovementHandler, getInventoryHandler, postCreateInventor
 import { productValidator } from "./validator/product.validator";
 import { handleInputError } from "./middleware/validation";
 import { body } from "express-validator";
-import { getUser, login } from "./handlers/user.handler";
+import { createAccount, getUser, login } from "./handlers/user.handler";
 import { authenticate } from "./middleware/auth";
 
 const router = Router()
 
 router.post('/auth/login', handleInputError, login)
+
+router.post('/auth/register' , handleInputError, createAccount)
 
 router.get('/user', authenticate, getUser)
 
