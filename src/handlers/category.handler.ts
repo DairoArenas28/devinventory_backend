@@ -2,9 +2,22 @@ import { Request, Response } from "express";
 import Category from "../models/Category.Model";
 
 export const getCategoryHandler = async (req: Request, res: Response) => {
+    const { page = 1 , limit = 10 } = req.query
     try {
-        const products = await Category.find()
-        res.json(products)
+
+        const skip = (Number(page) - 1) * Number(limit)
+
+        const [categories, total] = await Promise.all([
+            Category.find()
+                .skip(skip)
+                .limit(Number(limit)),
+            Category.countDocuments()
+        ])
+        res.json({
+            data: categories,
+            total,
+            currentPage: Number(page),
+        });
     } catch (e) {
         res.status(500).json({error: 'Error al obtener los productos'})
     }
