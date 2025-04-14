@@ -36,6 +36,13 @@ router.put('/category/:id', authenticate, putUpdateCategoryHandler)
 
 router.delete('/category/:id', authenticate, deleteCategoryHandler)
 
+
+//Ordenes 
+
+router.get('/order', authenticate, getInventoryHandler)
+
+
+
 //Movimiento
 
 router.get('/categorymovement', authenticate, getInventoryHandler)
